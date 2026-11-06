@@ -52,6 +52,15 @@ function loadExternalResource(url, type) {
     loadExternalResource(live2d_path + 'waifu.css', 'css'),
     loadExternalResource(live2d_path + 'waifu-tips.js', 'js')
   ]);
+  // Pick a random starting model on first visit (no modelId recorded yet).
+  // The model count comes from waifuPath's config, so switching models afterwards
+  // still follows the widget's built-in sequential "next" behavior.
+  // 首次进入（localStorage 无 modelId 记录）时随机选择起始角色；
+  // 角色总数取自 waifuPath 指向的配置，之后切换角色仍是挂件自带的顺序「下一个」逻辑
+  if (localStorage.getItem('modelId') === null) {
+    const waifuTips = await (await fetch(live2d_path + 'waifu-tips.json')).json();
+    localStorage.setItem('modelId', String(Math.floor(Math.random() * waifuTips.models.length)));
+  }
   // For detailed usage of configuration options, see README.en.md
   // 配置选项的具体用法见 README.md
   initWidget({
@@ -61,7 +70,7 @@ function loadExternalResource(url, type) {
     cubism5Path: 'https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js',
     tools: ['hitokoto', 'asteroids', 'switch-model', 'switch-texture', 'photo', 'info', 'quit'],
     logLevel: 'warn',
-    drag: false,
+    drag: true,
   });
 })();
 
